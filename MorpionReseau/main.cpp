@@ -42,7 +42,7 @@ int main()
                         // Vérifie s'il y a un vainqueur après chaque coup
                         if (oGame.checkWin(oGame.getPlayerTurn())) {
                             // Affiche le message de victoire
-                            std::cout << "Joueur " << oGame.getPlayerTurn() << " a gagné !" << std::endl;
+                            std::cout << "Joueur " << oGame.getPlayerTurn() << " a gagne !" << std::endl;
                             window.close();
                         }
                     }
