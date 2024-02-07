@@ -14,8 +14,6 @@ int main()
     std::vector<GameObject*> list;
     int click = 0;
 
-    while (window.isOpen())
-    {
         sf::Event event;
         while (window.isOpen())
         {
