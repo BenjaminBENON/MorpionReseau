@@ -18,37 +18,60 @@ int main()
     while (window.isOpen())
     {
         sf::Event event;
-        while (window.pollEvent(event))
+        while (window.isOpen())
         {
-            if (event.type == sf::Event::Closed)
+            sf::Event event;
+            while (window.pollEvent(event))
             {
-                window.close();
-            }
-
-            if (event.type == sf::Event::MouseButtonPressed)
-            {
-                if (event.mouseButton.button == sf::Mouse::Left)
+                if (event.type == sf::Event::Closed)
                 {
-                    click++;
-                    oGame.switchPlayer();
-                    sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
-                    list[click - 1] = new GameObject(mousePosition, oGame);
+                    window.close();
+                }
+
+                if (event.type == sf::Event::MouseButtonPressed && click < 9) // Vérifie si le jeu n'est pas terminé
+                {
+                    if (event.mouseButton.button == sf::Mouse::Left)
+                    {
+                        sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
+                        int row = mousePosition.y / (oGame.y / 3);
+                        int col = mousePosition.x / (oGame.x / 3);
+
+                        // Vérifie si la case est vide
+                        if (board[row][col] == -1) {&
+                            click++;
+                            oGame.switchPlayer();
+                            list.push_back(new GameObject(mousePosition, oGame));
+                            board[row][col] = oGame.getPlayerTurn();
+
+                            // Vérifie s'il y a un vainqueur après chaque coup
+                            if (oGame.checkWin(oGame.getPlayerTurn())) {
+                                // Affiche le message de victoire
+                                std::cout << "Joueur " << oGame.getPlayerTurn() << " a gagné !" << std::endl;
+                                window.close();
+                            }
+                        }
+                    }
                 }
             }
-        }
 
-        if (click > 0)
-        {
-            for (int i = 0; i < click; i++)
+            // Affiche le plateau de jeu
+            if (click > 0)
             {
-                window.draw(*(list[i]->pShape));
+                for (int i = 0; i < click; i++)
+                {
+                    if (list[i] != nullptr) {
+                        window.draw(*(list[i]->pShape));
+                    }
+                }
             }
-        }
-        window.display();
 
-        if (click == 9)
-        {
-            window.close();
+            window.display();
+
+            // Vérifie s'il y a égalité
+            if (click == 9) {
+                std::cout << "Match nul !" << std::endl;
+                window.close();
+            }
         }
     }
 
