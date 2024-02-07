@@ -17,12 +17,15 @@ int main()
     while (window.isOpen())
     {
         sf::Event event;
-        while (window.pollEvent(event))
+        while (window.isOpen())
         {
-            if (event.type == sf::Event::Closed)
+            sf::Event event;
+            while (window.pollEvent(event))
             {
-                window.close();
-            }
+                if (event.type == sf::Event::Closed)
+                {
+                    window.close();
+                }
 
             if (event.type == sf::Event::MouseButtonPressed && click < 9) // Vérifie si le jeu n'est pas terminé
             {

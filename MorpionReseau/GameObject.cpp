@@ -8,6 +8,7 @@ GameObject::GameObject(sf::Vector2i mousePosition, GameInstance oGame)
 	createObject(oGame.getPlayerTurn(), oGame);
 	play(mousePosition, oGame);
 	pShape->setPosition(position);
+	
 }
 
 
@@ -16,57 +17,68 @@ void GameObject::play(sf::Vector2i mousePosition, GameInstance oGame)
 {
 	if (mousePosition.x < oGame.x / 3)
 	{
-		if (mousePosition.y < oGame.y / 3)
+		if (mousePosition.y < oGame.y / 3 && verif == 0)
 		{
 			position.x = oGame.x / 6;
 			position.y = oGame.y / 6;
+			verif++;
 		}
-		else if (mousePosition.y < (oGame.y * 2) / 3)
+		else if (mousePosition.y < (oGame.y * 2) / 3 && verif == 0)
 		{
 			position.x = oGame.x / 6;
 			position.y = oGame.y / 2;
+			verif++;
 		}
-		else
+		else if (verif == 0)
 		{
 			position.x = oGame.x / 6;
 			position.y = (oGame.y * 5) / 6;
+			verif++;
 		}
 	}
 	else if (mousePosition.x < (oGame.x * 2) / 3)
 	{
-		if (mousePosition.y < oGame.y / 3)
+		if (mousePosition.y < oGame.y / 3 && verif == 0)
 		{
 			position.x = oGame.x / 2;
 			position.y = oGame.y / 6;
+			verif++;
 		}
-		else if (mousePosition.y < (oGame.y * 2) / 3)
+		else if (mousePosition.y < (oGame.y * 2) / 3 && verif == 0)
 		{
 			position.x = oGame.x / 2;
 			position.y = oGame.y / 2;
+			verif++;
 		}
-		else
+		else if (verif == 0)
 		{
 			position.x = oGame.x / 2;
 			position.y = (oGame.y * 5) / 6;
+			verif++;
 		}
 	}
-	else
+	else if (verif == 0)
 	{
-		if (mousePosition.y < oGame.y / 3)
+		if (mousePosition.y < oGame.y / 3 && verif == 0)
 		{
 			position.x = (oGame.x * 5) / 6;
 			position.y = oGame.y / 6;
+			verif++;
+
 		}
-		else if (mousePosition.y < (oGame.y * 2) / 3)
+		else if (mousePosition.y < (oGame.y * 2) / 3 && verif == 0)
 		{
 			position.x = (oGame.x * 5) / 6;
 			position.y = oGame.y / 2;
+			verif++;
 		}
-		else
+		else if (verif == 0)
 		{
 			position.x = (oGame.x * 5) / 6;
 			position.y = (oGame.y * 5) / 6;
+			verif++;
 		}
+
 	}
 }
 

@@ -13,6 +13,8 @@ public:
 
 	sf::Shape* pShape;
 
+	int verif;
+
 private:
 	void createObject(int iTurn, GameInstance oGame);
 
