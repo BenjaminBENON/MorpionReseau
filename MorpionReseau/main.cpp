@@ -4,7 +4,6 @@
 #include <iostream>
 #include <vector>
 
-
 int main()
 {
     GameInstance oGame(600, 600);
