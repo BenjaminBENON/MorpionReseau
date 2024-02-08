@@ -1,6 +1,6 @@
 #include "GameObject.h"
 #include "GameInstance.h"
-
+#include "client.h"
 #include <iostream>
 #include <vector>
 
@@ -9,7 +9,7 @@ int main()
     GameInstance oGame(600, 600);
 
     sf::RenderWindow window(sf::VideoMode(oGame.x, oGame.y), "MORPION");
-
+    new Client();
     std::vector<GameObject*> list;
     int click = 0;
 
