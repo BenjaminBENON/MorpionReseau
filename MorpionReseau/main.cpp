@@ -1,5 +1,6 @@
 #include "GameObject.h"
 #include "GameInstance.h"
+#include "Serveur.h"
 
 #include <iostream>
 #include <vector>
@@ -7,6 +8,8 @@
 
 int main()
 {
+    Serveur oServer = Serveur();
+    oServer.createServer();
     GameInstance oGame(600, 600);
 
     sf::RenderWindow window(sf::VideoMode(oGame.x, oGame.y), "MORPION");
