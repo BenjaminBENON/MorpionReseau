@@ -10,6 +10,7 @@ int main()
 {
     Serveur oServer = Serveur();
     oServer.createServer();
+    
     GameInstance oGame(600, 600);
 
     sf::RenderWindow window(sf::VideoMode(oGame.x, oGame.y), "MORPION");
@@ -20,6 +21,7 @@ int main()
         sf::Event event;
         while (window.isOpen())
         {
+            //oServer.createServer();
             sf::Event event;
             while (window.pollEvent(event))
             {
@@ -37,14 +39,16 @@ int main()
                     int col = mousePosition.x / (oGame.x / 3);
 
                     // Vérifie si la case est vide
-                    if (oGame.getBoard()[row][col] == -1) {
+                    if (oGame.getBoard()[row][col] == -1) 
+                    {
                         click++;
                         oGame.switchPlayer();
                         list.push_back(new GameObject(mousePosition, oGame));
                         oGame.getBoard()[row][col] = oGame.getPlayerTurn();
 
                         // Vérifie s'il y a un vainqueur après chaque coup
-                        if (oGame.checkWin(oGame.getPlayerTurn())) {
+                        if (oGame.checkWin(oGame.getPlayerTurn())) 
+                        {
                             // Affiche le message de victoire
                             std::cout << "Joueur " << oGame.getPlayerTurn() << " a gagne !" << std::endl;
                             window.close();
@@ -68,7 +72,8 @@ int main()
         window.display();
 
         // Vérifie s'il y a égalité
-        if (click == 9) {
+        if (click == 9) 
+        {
             std::cout << "Match nul !" << std::endl;
             window.close();
         }

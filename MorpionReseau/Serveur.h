@@ -4,8 +4,13 @@
 
 #include <WinSock2.h>
 #include <Windows.h>
+
 #include <iostream>
 #include <cstring>
+
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
 
 #pragma comment(lib, "User32.lib")
 #pragma comment(lib, "Ws2_32.lib")
@@ -21,5 +26,7 @@ public:
 private :
 	static LRESULT CALLBACK SocketWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	HWND MakeWorkerWindow();
+
+	int nbClient;
 
 };

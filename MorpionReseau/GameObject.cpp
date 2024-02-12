@@ -12,7 +12,6 @@ GameObject::GameObject(sf::Vector2i mousePosition, GameInstance oGame)
 }
 
 
-
 void GameObject::play(sf::Vector2i mousePosition, GameInstance oGame)
 {
 	if (mousePosition.x < oGame.x / 3)

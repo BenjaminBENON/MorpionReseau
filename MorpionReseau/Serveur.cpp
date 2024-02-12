@@ -1,14 +1,15 @@
 #include "Serveur.h"
 
+
+
 #define PORT 7985
+#define MAX_CLIENTS 5
 #define WM_SOCKET (WM_USER + 1)
 
 Serveur::Serveur()
 {
-
+    nbClient = 0;
 }
-
-
 
 int Serveur::createServer()
 {
@@ -23,10 +24,12 @@ int Serveur::createServer()
     HWND hWnd = MakeWorkerWindow();
 
     // Create server socket
-    SOCKET server_fd = socket(AF_INET, SOCK_STREAM, 0);
+    SOCKET server_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    //SOCKET client_sockets[MAX_CLIENTS];
 
     // Bind server socket
     struct sockaddr_in address;
+    int addrlen = sizeof(address);
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(PORT);
@@ -44,6 +47,7 @@ int Serveur::createServer()
         TranslateMessage(&msg);
         DispatchMessage(&msg);
     }
+
 
     // Close server socket and clean up Winsock
     closesocket(server_fd);
@@ -66,8 +70,17 @@ LRESULT CALLBACK Serveur::SocketWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPA
             SOCKET new_socket = accept(wParam, NULL, NULL);
             std::cout << "New connection accepted" << std::endl;
 
+            //nbClient++;
+
+            rapidjson::Document document;
+            document.SetObject();
+            rapidjson::Document::AllocatorType& allocator = document.GetAllocator();
+
+
+            //nbClient++;
+
             // Associate new socket with window for asynchronous operations
-            WSAAsyncSelect(new_socket, hwnd, WM_SOCKET, FD_READ | FD_WRITE);
+            WSAAsyncSelect(new_socket, hwnd, WM_SOCKET, FD_READ);
             break;
         }
         case FD_READ:
@@ -76,7 +89,20 @@ LRESULT CALLBACK Serveur::SocketWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPA
             int valread = recv(wParam, buffer, sizeof(buffer), 0);
             if (valread > 0)
             {
-                std::cout << "Received message from client: " << buffer << std::endl;
+                // Parse the received JSON message
+                rapidjson::Document document;
+                document.Parse(buffer);
+
+                // Process the received JSON message
+                if (document.HasMember("name"))
+                {
+                    const rapidjson::Value& value = document["name"];
+                    if (value.IsString()) 
+                    {
+                        std::cout << "Value of 'name': " << value.GetString() << std::endl;
+                    }
+                }
+
                 // Echo received message back to client
                 send(wParam, buffer, strlen(buffer), 0);
             }
@@ -89,8 +115,8 @@ LRESULT CALLBACK Serveur::SocketWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPA
             std::cout << "Unexpected event on socket" << std::endl;
             break;
         }
+        break;
     }
-    break;
     default:
         return DefWindowProc(hwnd, uMsg, wParam, lParam);
     }

@@ -6,6 +6,7 @@
 
 class GameObject
 {
+
 public:
 	GameObject(sf::Vector2i mousePosition, GameInstance oGame);
 
