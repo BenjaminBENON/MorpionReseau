@@ -32,7 +32,7 @@ Client::Client() {
     // Server address
     struct sockaddr_in serverAddr;
     serverAddr.sin_family = AF_INET;
-    serverAddr.sin_addr.s_addr = inet_addr("10.1.144.42"); // Assuming server is running locally
+    serverAddr.sin_addr.s_addr = inet_addr("10.1.144.30"); // Assuming server is running locally
     serverAddr.sin_port = htons(PORT);
 
     // Connect to server
@@ -54,6 +54,21 @@ Client::Client() {
         DispatchMessage(&msg);
     }
 
+    //// Create JSON object with name and surname
+    //rapidjson::Document document;
+    //document.SetObject();
+    //rapidjson::Document::AllocatorType& allocator = document.GetAllocator();
+    //document.AddMember("name", "John", allocator);
+    //document.AddMember("surname", "Doe", allocator);
+
+    //// Convert JSON object to string
+    //rapidjson::StringBuffer buffer;
+    //rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+    //document.Accept(writer);
+    //std::string jsonString = buffer.GetString();
+
+    //// Send JSON string to server
+    //send(clientSocket, jsonString.c_str(), jsonString.length(), 0);
     // Close socket and clean up Winsock
     closesocket(clientSocket);
     DestroyWindow(hWnd);
@@ -67,7 +82,6 @@ LRESULT CALLBACK ClientWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
         switch (WSAGETSELECTEVENT(lParam)) {
         case FD_CONNECT:
             std::cout << "Connected to server\n";
-
             break;
             //case FD_READ:
             //    // Handle reading data from server
