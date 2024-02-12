@@ -1,13 +1,28 @@
-// Client side C program to demonstrate Socket
-// programming
-#include "client.h"
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
 
-Client::Client() {
+#include <WinSock2.h>
+#include <Windows.h>
+#include <iostream>
+#include <cstring>
 
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
+
+#pragma comment(lib, "Ws2_32.lib")
+
+#define PORT 7985
+#define WM_SOCKET (WM_USER + 1)
+
+LRESULT CALLBACK ClientWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+HWND MakeWorkerWindow();
+
+int main() {
     // Initialize Winsock
     WSADATA wsa;
     if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
         std::cerr << "WSAStartup failed\n";
+        return 1;
     }
 
     // Create a dummy window for socket events handling
@@ -15,18 +30,18 @@ Client::Client() {
     if (hWnd == NULL) {
         std::cerr << "CreateWindow failed\n";
         WSACleanup();
+        return 1;
     }
 
     // Associate window with socket for asynchronous operations
-    SOCKET clientSocket = socket(AF_INET, SOCK_STREAM, 0);
-    WSAAsyncSelect(clientSocket, hWnd, WM_SOCKET, FD_CONNECT);
+    SOCKET clientSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
     // Create socket
-
     if (clientSocket == INVALID_SOCKET) {
         std::cerr << "Socket creation failed\n";
         DestroyWindow(hWnd);
         WSACleanup();
+        return 1;
     }
 
     // Server address
@@ -42,10 +57,30 @@ Client::Client() {
             closesocket(clientSocket);
             DestroyWindow(hWnd);
             WSACleanup();
+            return 1;
         }
     }
 
     std::cout << "Connecting to server...\n";
+
+    WSAAsyncSelect(clientSocket, hWnd, WM_SOCKET, FD_READ);
+    // Create JSON object with name and surname
+    rapidjson::Document document;
+    document.SetObject();
+    rapidjson::Document::AllocatorType& allocator = document.GetAllocator();
+    document.AddMember("name", "John", allocator);
+    document.AddMember("surname", "Doe", allocator);
+
+    // Convert JSON object to string
+    rapidjson::StringBuffer buffer;
+    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+    document.Accept(writer);
+    std::string jsonString = buffer.GetString();
+    std::cout << jsonString << std::endl;
+
+    // Send JSON string to server
+    send(clientSocket, jsonString.c_str(), jsonString.length(), 0);
+
 
     // Message loop to handle socket events
     MSG msg;
@@ -54,50 +89,37 @@ Client::Client() {
         DispatchMessage(&msg);
     }
 
-    //// Create JSON object with name and surname
-    //rapidjson::Document document;
-    //document.SetObject();
-    //rapidjson::Document::AllocatorType& allocator = document.GetAllocator();
-    //document.AddMember("name", "John", allocator);
-    //document.AddMember("surname", "Doe", allocator);
-
-    //// Convert JSON object to string
-    //rapidjson::StringBuffer buffer;
-    //rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-    //document.Accept(writer);
-    //std::string jsonString = buffer.GetString();
-
-    //// Send JSON string to server
-    //send(clientSocket, jsonString.c_str(), jsonString.length(), 0);
     // Close socket and clean up Winsock
     closesocket(clientSocket);
     DestroyWindow(hWnd);
     WSACleanup();
 
+    return 0;
 }
 
 LRESULT CALLBACK ClientWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     switch (uMsg) {
     case WM_SOCKET:
         switch (WSAGETSELECTEVENT(lParam)) {
-        case FD_CONNECT:
-            std::cout << "Connected to server\n";
+            /*case FD_CONNECT:
+                std::cout << "Connected to server\n";
+                break;*/
+        case FD_READ:
+        {
+            char buffer[1024] = { 0 };
+            int valread = recv(wParam, buffer, sizeof(buffer), 0);
+            if (valread > 0)
+            {
+                std::cout << "Send message to server: " << buffer << std::endl;
+
+                // Echo received message back to client
+                send(wParam, buffer, strlen(buffer), 0);
+            }
             break;
-            //case FD_READ:
-            //    // Handle reading data from server
-            //    char buffer[1024] = { 0 };
-            //    int valread = recv(wParam, buffer, sizeof(buffer), 0);
-            //    if (valread > 0) {
-            //        std::cout << "Message from server: " << buffer << std::endl;
-            //    }
-            //    break;
-            //case FD_WRITE:
-            //    std::cout << "Ready to write to server\n";
-            //    break;
-            //case FD_CLOSE:
-            //    std::cout << "Connection closed\n";
-            //    PostQuitMessage(0);
-            //    break;
+        }
+        case FD_WRITE:
+            std::cout << "Ready to write to server" << std::endl;
+            break;
         default:
             std::cerr << "Unexpected event on socket\n";
             break;
@@ -108,12 +130,12 @@ LRESULT CALLBACK ClientWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
     }
     return 0;
 }
+
 HWND MakeWorkerWindow()
 {
     WNDCLASS wndclass;
     const char* ProviderClass = "AsyncSelect";
     HWND Window;
-
 
     wndclass.style = CS_HREDRAW | CS_VREDRAW;
     wndclass.lpfnWndProc = ClientWndProc;
@@ -125,7 +147,6 @@ HWND MakeWorkerWindow()
     wndclass.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
     wndclass.lpszMenuName = NULL;
     wndclass.lpszClassName = L"SocketWindowClass";
-
 
     if (RegisterClass(&wndclass) == 0)
     {
