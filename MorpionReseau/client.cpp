@@ -17,6 +17,8 @@
 LRESULT CALLBACK ClientWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 HWND MakeWorkerWindow();
 
+using namespace rapidjson;
+
 int main() {
     // Initialize Winsock
     WSADATA wsa;
@@ -68,15 +70,26 @@ int main() {
     rapidjson::Document document;
     document.SetObject();
     rapidjson::Document::AllocatorType& allocator = document.GetAllocator();
-    document.AddMember("name", "John", allocator);
-    document.AddMember("surname", "Doe", allocator);
+
+    std::string name;
+    std::cout << "Entrez votre pseudo : ";
+    std::cin >> name;
+
+    Value position(kArrayType); // Crée un tableau JSON
+
+    // Ajoute les coordonnées x et y au tableau JSON
+    position.PushBack(1.6439f, allocator);
+    position.PushBack(12.42039f, allocator);
+
+    document.AddMember("Name", StringRef(name.c_str()), allocator);
+    document.AddMember("MousePosition", position, allocator);
 
     // Convert JSON object to string
     rapidjson::StringBuffer buffer;
     rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
     document.Accept(writer);
     std::string jsonString = buffer.GetString();
-    std::cout << jsonString << std::endl;
+
 
     // Send JSON string to server
     send(clientSocket, jsonString.c_str(), jsonString.length(), 0);
@@ -112,8 +125,6 @@ LRESULT CALLBACK ClientWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
             {
                 std::cout << "Send message to server: " << buffer << std::endl;
 
-                // Echo received message back to client
-                send(wParam, buffer, strlen(buffer), 0);
             }
             break;
         }
