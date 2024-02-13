@@ -12,11 +12,6 @@ GameInstance::GameInstance(int iLengthScreen, int iHeightScreen)
     board = std::vector<std::vector<int>>(3, std::vector<int>(3, -1));
 }
 
-std::vector<std::vector<int>>& GameInstance::getBoard()
-{
-    return board;
-}
-
 void GameInstance::switchPlayer()
 {
     switch (playerTurn)
@@ -57,4 +52,9 @@ bool GameInstance::checkWin(int player)
 int GameInstance::getPlayerTurn()
 {
     return playerTurn;
+}
+
+std::vector<std::vector<int>>& GameInstance::getBoard()
+{
+    return board;
 }

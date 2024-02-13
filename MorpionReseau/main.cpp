@@ -8,27 +8,35 @@
 
 int main()
 {
-    Serveur oServer = Serveur();
-    oServer.createServer();
-    
+    // Initialize Winsock
+    WSADATA wsa;
+    if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
+    {
+        printf("WSAStartup failed\n");
+        exit(EXIT_FAILURE);
+    }
+
+
     GameInstance oGame(600, 600);
 
     sf::RenderWindow window(sf::VideoMode(oGame.x, oGame.y), "MORPION");
 
+    Serveur* pServer = new Serveur;
+    pServer->createServer();
+   
+
     std::vector<GameObject*> list;
     int click = 0;
 
+    while (window.isOpen())
+    {
         sf::Event event;
-        while (window.isOpen())
+        while (window.pollEvent(event))
         {
-            //oServer.createServer();
-            sf::Event event;
-            while (window.pollEvent(event))
+            if (event.type == sf::Event::Closed)
             {
-                if (event.type == sf::Event::Closed)
-                {
-                    window.close();
-                }
+                window.close();
+            }
 
             if (event.type == sf::Event::MouseButtonPressed && click < 9) // Vérifie si le jeu n'est pas terminé
             {
@@ -39,7 +47,7 @@ int main()
                     int col = mousePosition.x / (oGame.x / 3);
 
                     // Vérifie si la case est vide
-                    if (oGame.getBoard()[row][col] == -1) 
+                    if (oGame.getBoard()[row][col] == -1)
                     {
                         click++;
                         oGame.switchPlayer();
@@ -47,7 +55,7 @@ int main()
                         oGame.getBoard()[row][col] = oGame.getPlayerTurn();
 
                         // Vérifie s'il y a un vainqueur après chaque coup
-                        if (oGame.checkWin(oGame.getPlayerTurn())) 
+                        if (oGame.checkWin(oGame.getPlayerTurn()))
                         {
                             // Affiche le message de victoire
                             std::cout << "Joueur " << oGame.getPlayerTurn() << " a gagne !" << std::endl;
@@ -72,12 +80,18 @@ int main()
         window.display();
 
         // Vérifie s'il y a égalité
-        if (click == 9) 
+        if (click == 9)
         {
             std::cout << "Match nul !" << std::endl;
             window.close();
         }
+
     }
+
+    pServer->~Serveur();
+
+    WSACleanup();
+
 
     return 0;
 }

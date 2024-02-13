@@ -7,23 +7,19 @@
 
 Serveur::Serveur()
 {
-    nbClient = 0;
+}
+
+Serveur::~Serveur()
+{
+    closesocket(server_fd);
 }
 
 int Serveur::createServer()
 {
-    // Initialize Winsock
-    WSADATA wsa;
-    if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
-    {
-        printf("WSAStartup failed\n");
-        exit(EXIT_FAILURE);
-    }
-
     HWND hWnd = MakeWorkerWindow();
 
     // Create server socket
-    SOCKET server_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    server_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
     // Bind server socket
     struct sockaddr_in address;
@@ -39,17 +35,16 @@ int Serveur::createServer()
     // Associate server socket with window for asynchronous operations
     WSAAsyncSelect(server_fd, hWnd, WM_SOCKET, FD_ACCEPT);
 
-    // Message loop to handle socket events
-    MSG msg;
-    while (GetMessage(&msg, NULL, 0, 0)) {
+    // Message loop to handle socket events-------------
+    /*MSG msg;
+    while (GetMessage(&msg, NULL, 0, 0)) 
+    {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
-    }
+    }*/
+    // MULTITHREADING-----------------------------------
 
-
-    // Close server socket and clean up Winsock
-    closesocket(server_fd);
-    WSACleanup();
+   
 
     return 0;
 }
@@ -67,8 +62,6 @@ LRESULT CALLBACK Serveur::SocketWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPA
             // Accept incoming connection
             SOCKET new_socket = accept(wParam, NULL, NULL);
             std::cout << "New connection accepted" << std::endl;
-
-            //nbClient++;
 
             rapidjson::Document document;
             document.SetObject();

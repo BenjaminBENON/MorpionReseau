@@ -22,11 +22,12 @@ class Serveur
 
 public:
 	Serveur();
+	~Serveur();
 	int createServer();
 private :
 	static LRESULT CALLBACK SocketWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	HWND MakeWorkerWindow();
 
-	int nbClient;
+	SOCKET server_fd;
 
 };
