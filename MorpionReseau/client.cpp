@@ -1,11 +1,14 @@
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
+#define NOMINMAX
 
 #include <WinSock2.h>
 #include <Windows.h>
 #include <iostream>
 #include <cstring>
 #include "GameInstance.h"
+
 #include <SFML/Graphics.hpp>
+#include <vector>
 
 #include "rapidjson/document.h"
 #include "rapidjson/writer.h"
@@ -22,20 +25,6 @@ HWND MakeWorkerWindow();
 using namespace rapidjson;
 
 int main() {
-    // Initialize Winsock
-    WSADATA wsa;
-    if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
-        std::cerr << "WSAStartup failed\n";
-        return 1;
-    }
-
-    // Create a dummy window for socket events handling
-    HWND hWnd = MakeWorkerWindow();
-    if (hWnd == NULL) {
-        std::cerr << "CreateWindow failed\n";
-        WSACleanup();
-        return 1;
-    }
 
     GameInstance oGame(600, 600);
 
@@ -46,6 +35,83 @@ int main() {
     sf::Event event;
     while (window.isOpen())
     {
+        // Initialize Winsock
+        WSADATA wsa;
+        if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
+            std::cerr << "WSAStartup failed\n";
+            return 1;
+        }
+
+        // Create a dummy window for socket events handling
+        HWND hWnd = MakeWorkerWindow();
+        if (hWnd == NULL) {
+            std::cerr << "CreateWindow failed\n";
+            WSACleanup();
+            return 1;
+        }
+
+        // Associate window with socket for asynchronous operations
+        SOCKET clientSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+
+        // Create socket
+        if (clientSocket == INVALID_SOCKET) {
+            std::cerr << "Socket creation failed\n";
+            DestroyWindow(hWnd);
+            WSACleanup();
+            return 1;
+        }
+
+        // Server address
+        struct sockaddr_in serverAddr;
+        serverAddr.sin_family = AF_INET;
+        serverAddr.sin_addr.s_addr = inet_addr("10.1.144.30"); // Assuming server is running locally
+        serverAddr.sin_port = htons(PORT);
+
+        // Connect to server
+        if (connect(clientSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0) {
+            if (WSAGetLastError() != WSAEWOULDBLOCK) {
+                std::cerr << "Connection failed\n";
+                closesocket(clientSocket);
+                DestroyWindow(hWnd);
+                WSACleanup();
+                return 1;
+            }
+        }
+
+        std::cout << "Connecting to server...\n";
+
+        WSAAsyncSelect(clientSocket, hWnd, WM_SOCKET, FD_READ);
+        // Create JSON object with name and surname
+        rapidjson::Document document;
+        document.SetObject();
+        rapidjson::Document::AllocatorType& allocator = document.GetAllocator();
+
+        std::string name;
+        std::cout << "Entrez votre pseudo : ";
+        std::cin >> name;
+
+        Value position(kArrayType); // Crée un tableau JSON
+
+        // Ajoute les coordonnées x et y au tableau JSON
+        position.PushBack(1.6439f, allocator);
+        position.PushBack(12.42039f, allocator);
+
+        document.AddMember("Name", StringRef(name.c_str()), allocator);
+        document.AddMember("MousePosition", position, allocator);
+
+        // Convert JSON object to string
+        rapidjson::StringBuffer buffer;
+        rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+        document.Accept(writer);
+        std::string jsonString = buffer.GetString();
+
+
+        // Send JSON string to server
+        if (sf::Mouse::isButtonPressed(Button Left))
+        send(clientSocket, jsonString.c_str(), jsonString.length(), 0);
+
+
+
         sf::Event event;
         while (window.pollEvent(event))
         {
@@ -54,81 +120,21 @@ int main() {
                 window.close();
             }
         }
-    }
 
-    // Associate window with socket for asynchronous operations
-    SOCKET clientSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+        // Message loop to handle socket events
+        MSG msg;
+        while (GetMessage(&msg, NULL, 0, 0)) {
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
 
-    // Create socket
-    if (clientSocket == INVALID_SOCKET) {
-        std::cerr << "Socket creation failed\n";
+        // Close socket and clean up Winsock
+        closesocket(clientSocket);
         DestroyWindow(hWnd);
         WSACleanup();
-        return 1;
+
+        return 0;
     }
-
-    // Server address
-    struct sockaddr_in serverAddr;
-    serverAddr.sin_family = AF_INET;
-    serverAddr.sin_addr.s_addr = inet_addr("10.1.144.42"); // Assuming server is running locally
-    serverAddr.sin_port = htons(PORT);
-
-    // Connect to server
-    if (connect(clientSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0) {
-        if (WSAGetLastError() != WSAEWOULDBLOCK) {
-            std::cerr << "Connection failed\n";
-            closesocket(clientSocket);
-            DestroyWindow(hWnd);
-            WSACleanup();
-            return 1;
-        }
-    }
-
-    std::cout << "Connecting to server...\n";
-
-    WSAAsyncSelect(clientSocket, hWnd, WM_SOCKET, FD_READ);
-    // Create JSON object with name and surname
-    rapidjson::Document document;
-    document.SetObject();
-    rapidjson::Document::AllocatorType& allocator = document.GetAllocator();
-
-    std::string name;
-    std::cout << "Entrez votre pseudo : ";
-    std::cin >> name;
-
-    Value position(kArrayType); // Crée un tableau JSON
-
-    // Ajoute les coordonnées x et y au tableau JSON
-    position.PushBack(1.6439f, allocator);
-    position.PushBack(12.42039f, allocator);
-
-    document.AddMember("Name", StringRef(name.c_str()), allocator);
-    document.AddMember("MousePosition", position, allocator);
-
-    // Convert JSON object to string
-    rapidjson::StringBuffer buffer;
-    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-    document.Accept(writer);
-    std::string jsonString = buffer.GetString();
-
-
-    // Send JSON string to server
-    send(clientSocket, jsonString.c_str(), jsonString.length(), 0);
-
-
-    // Message loop to handle socket events
-    MSG msg;
-    while (GetMessage(&msg, NULL, 0, 0)) {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
-    }
-
-    // Close socket and clean up Winsock
-    closesocket(clientSocket);
-    DestroyWindow(hWnd);
-    WSACleanup();
-
-    return 0;
 }
 
 LRESULT CALLBACK ClientWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
