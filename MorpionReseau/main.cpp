@@ -6,24 +6,23 @@
 #include <vector>
 
 
-int main()
+DWORD WINAPI ThreadFunction1(LPVOID lpParam) 
 {
-    // Initialize Winsock
-    WSADATA wsa;
-    if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
-    {
-        printf("WSAStartup failed\n");
-        exit(EXIT_FAILURE);
-    }
+    Serveur* pServer = new Serveur;
+    pServer->createServer();
 
 
+
+    pServer->~Serveur();
+    return 0;
+}
+
+
+DWORD WINAPI ThreadFunction2(LPVOID lpParam) 
+{
     GameInstance oGame(600, 600);
 
     sf::RenderWindow window(sf::VideoMode(oGame.x, oGame.y), "MORPION");
-
-    Serveur* pServer = new Serveur;
-    pServer->createServer();
-   
 
     std::vector<GameObject*> list;
     int click = 0;
@@ -71,7 +70,8 @@ int main()
         {
             for (int i = 0; i < click; i++)
             {
-                if (list[i] != nullptr) {
+                if (list[i] != nullptr)
+                {
                     window.draw(*(list[i]->pShape));
                 }
             }
@@ -88,10 +88,38 @@ int main()
 
     }
 
-    pServer->~Serveur();
-
-    WSACleanup();
-
-
     return 0;
 }
+
+
+int main()
+{
+    // Initialize Winsock
+    WSADATA wsa;
+    if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
+    {
+        printf("WSAStartup failed\n");
+        exit(EXIT_FAILURE);
+    }
+
+
+    // Handles pour les threads
+    HANDLE hThread1, hThread2;
+    // Créer les threads
+    hThread1 = CreateThread(NULL, 0, ThreadFunction1, NULL, 0, NULL);
+    hThread2 = CreateThread(NULL, 0, ThreadFunction2, NULL, 0, NULL);
+
+
+    // Attendre la fin des threads
+    WaitForSingleObject(hThread1, INFINITE);
+    WaitForSingleObject(hThread2, INFINITE);
+    // Fermer les handles des threads
+    CloseHandle(hThread1);
+    CloseHandle(hThread2);
+
+
+
+    WSACleanup();
+    return 0;
+}
+
