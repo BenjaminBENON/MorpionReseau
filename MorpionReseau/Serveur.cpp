@@ -3,7 +3,6 @@
 
 
 #define PORT 7985
-#define MAX_CLIENTS 5
 #define WM_SOCKET (WM_USER + 1)
 
 Serveur::Serveur()
@@ -25,7 +24,6 @@ int Serveur::createServer()
 
     // Create server socket
     SOCKET server_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    //SOCKET client_sockets[MAX_CLIENTS];
 
     // Bind server socket
     struct sockaddr_in address;
@@ -76,9 +74,6 @@ LRESULT CALLBACK Serveur::SocketWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPA
             document.SetObject();
             rapidjson::Document::AllocatorType& allocator = document.GetAllocator();
 
-
-            //nbClient++;
-
             // Associate new socket with window for asynchronous operations
             WSAAsyncSelect(new_socket, hwnd, WM_SOCKET, FD_READ);
             break;
@@ -94,17 +89,20 @@ LRESULT CALLBACK Serveur::SocketWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPA
                 document.Parse(buffer);
 
                 // Process the received JSON message
-                if (document.HasMember("name"))
+                if (document.HasMember("Name"))
                 {
-                    const rapidjson::Value& value = document["name"];
-                    if (value.IsString()) 
-                    {
-                        std::cout << "Value of 'name': " << value.GetString() << std::endl;
-                    }
+                    const rapidjson::Value& value = document["Name"];
+                }
+
+                if (document.HasMember("MousePosition"))
+                {
+                    const rapidjson::Value& position = document["MousePosition"];
+                    std::cout << position[0].GetDouble() << " et " << position[1].GetDouble() << std::endl;
                 }
 
                 // Echo received message back to client
-                send(wParam, buffer, strlen(buffer), 0);
+                const char* message = "COUCOU";
+                send(wParam, message, strlen(message), 0);
             }
             break;
         }
