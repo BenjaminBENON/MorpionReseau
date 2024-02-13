@@ -49,7 +49,7 @@ int main() {
     // Server address
     struct sockaddr_in serverAddr;
     serverAddr.sin_family = AF_INET;
-    serverAddr.sin_addr.s_addr = inet_addr("10.1.144.30"); // Assuming server is running locally
+    serverAddr.sin_addr.s_addr = inet_addr("10.1.144.42"); // Assuming server is running locally
     serverAddr.sin_port = htons(PORT);
 
     // Connect to server
