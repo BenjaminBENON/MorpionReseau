@@ -36,12 +36,7 @@ int Serveur::createServer()
     WSAAsyncSelect(server_fd, hWnd, WM_SOCKET, FD_ACCEPT);
 
     // Message loop to handle socket events-------------
-    MSG msg;
-    while (GetMessage(&msg, NULL, 0, 0)) 
-    {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
-    }
+   
     // MULTITHREADING-----------------------------------
 
    
