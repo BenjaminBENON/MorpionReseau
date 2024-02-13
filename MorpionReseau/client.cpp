@@ -4,6 +4,8 @@
 #include <Windows.h>
 #include <iostream>
 #include <cstring>
+#include "GameInstance.h"
+#include <SFML/Graphics.hpp>
 
 #include "rapidjson/document.h"
 #include "rapidjson/writer.h"
@@ -33,6 +35,25 @@ int main() {
         std::cerr << "CreateWindow failed\n";
         WSACleanup();
         return 1;
+    }
+
+    GameInstance oGame(600, 600);
+
+    sf::RenderWindow window(sf::VideoMode(oGame.x, oGame.y), "MORPION");
+
+    int click = 0;
+
+    sf::Event event;
+    while (window.isOpen())
+    {
+        sf::Event event;
+        while (window.pollEvent(event))
+        {
+            if (event.type == sf::Event::Closed)
+            {
+                window.close();
+            }
+        }
     }
 
     // Associate window with socket for asynchronous operations
