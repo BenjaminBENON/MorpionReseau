@@ -107,19 +107,8 @@ int main() {
 
 
         // Send JSON string to server
-        if (sf::Mouse::isButtonPressed(Button Left))
         send(clientSocket, jsonString.c_str(), jsonString.length(), 0);
-
-
-
-        sf::Event event;
-        while (window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-            {
-                window.close();
-            }
-        }
+        
 
         // Message loop to handle socket events
         MSG msg;
@@ -129,9 +118,18 @@ int main() {
         }
 
         // Close socket and clean up Winsock
-        closesocket(clientSocket);
-        DestroyWindow(hWnd);
-        WSACleanup();
+        sf::Event event;
+        while (window.pollEvent(event))
+        {
+            if (event.type == sf::Event::Closed)
+            {
+                window.close();
+                closesocket(clientSocket);  
+                DestroyWindow(hWnd);
+                WSACleanup();
+            }
+        }
+
 
         return 0;
     }
