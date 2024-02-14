@@ -51,7 +51,6 @@ int main()
 
     //ENVOYER UN SEND ICI directement ou faire un petit tricks
 
-    // Attendre la fin du thread (ceci n'est nécessaire que si vous avez besoin de synchroniser)
     WaitForSingleObject(socketThread.getThreadHandle(), INFINITE);
 
     WSACleanup();
