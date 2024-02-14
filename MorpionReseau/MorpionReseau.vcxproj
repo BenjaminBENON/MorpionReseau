@@ -137,13 +137,17 @@
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Serveur.cpp" />
-    <ClCompile Include="Thread.cpp" />
+    <ClCompile Include="socket_sThread.cpp" />
+    <ClCompile Include="sThread.cpp" />
+    <ClCompile Include="web_sThread.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameInstance.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Serveur.h" />
-    <ClInclude Include="Thread.h" />
+    <ClInclude Include="socket_sThread.h" />
+    <ClInclude Include="sThread.h" />
+    <ClInclude Include="web_sThread.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

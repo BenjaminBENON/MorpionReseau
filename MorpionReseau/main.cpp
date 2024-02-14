@@ -1,30 +1,27 @@
 #include "GameObject.h"
 #include "GameInstance.h"
 #include "Serveur.h"
+#include "socket_sThread.h"
+#include "web_sThread.h"
 
 #include <iostream>
 #include <vector>
 
-
-DWORD WINAPI ThreadFunction1(LPVOID lpParam) 
+int main()
 {
-    Serveur* pServer = new Serveur;
-    pServer->createServer();
-
-    MSG msg;
-    while (GetMessage(&msg, NULL, 0, 0))
+    // Initialize Winsock
+    WSADATA wsa;
+    if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
     {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
+        printf("WSAStartup failed\n");
+        exit(EXIT_FAILURE);
     }
 
-    pServer->~Serveur();
-    return 0;
-}
+    //Construction du thread qui gère le réseau
+    socket_sThread* pThread = new socket_sThread();
+    //Construction du thread qui gère le serveur Web
+    web_sThread* pThread_web = new web_sThread();
 
-
-DWORD WINAPI ThreadFunction2(LPVOID lpParam) 
-{
     GameInstance oGame(600, 600);
 
     sf::RenderWindow window(sf::VideoMode(oGame.x, oGame.y), "MORPION");
@@ -87,42 +84,20 @@ DWORD WINAPI ThreadFunction2(LPVOID lpParam)
         // Vérifie s'il y a égalité
         if (click == 9)
         {
-            std::cout << "Match nul !" << std::endl;
-            window.close();
+            if (!(oGame.checkWin(oGame.getPlayerTurn())))
+            {
+                std::cout << "Match nul !" << std::endl;
+                window.close();
+            }
         }
-
-    }
-
-    return 0;
-}
-
-
-int main()
-{
-    // Initialize Winsock
-    WSADATA wsa;
-    if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
-    {
-        printf("WSAStartup failed\n");
-        exit(EXIT_FAILURE);
     }
 
 
-    // Handles pour les threads
-    HANDLE hThread1, hThread2;
-    // Créer les threads
-    hThread1 = CreateThread(NULL, 0, ThreadFunction1, NULL, 0, NULL);
-    hThread2 = CreateThread(NULL, 0, ThreadFunction2, NULL, 0, NULL);
+    WaitForSingleObject(pThread->getThreadHandle(), INFINITE);
+    WaitForSingleObject(pThread_web->getThreadHandle(), INFINITE);
 
-
-    // Attendre la fin des threads
-    WaitForSingleObject(hThread1, INFINITE);
-    WaitForSingleObject(hThread2, INFINITE);
-    // Fermer les handles des threads
-    CloseHandle(hThread1);
-    CloseHandle(hThread2);
-
-
+    pThread->~socket_sThread();
+    pThread_web->~web_sThread();
 
     WSACleanup();
     return 0;

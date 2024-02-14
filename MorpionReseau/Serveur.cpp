@@ -35,12 +35,6 @@ int Serveur::createServer()
     // Associate server socket with window for asynchronous operations
     WSAAsyncSelect(server_fd, hWnd, WM_SOCKET, FD_ACCEPT);
 
-    // Message loop to handle socket events-------------
-   
-    // MULTITHREADING-----------------------------------
-
-   
-
     return 0;
 }
 
