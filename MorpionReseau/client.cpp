@@ -57,7 +57,7 @@ DWORD WINAPI ThreadFunction2(LPVOID lpParam)
 {
     GameInstance oGame(600, 600);
     sf::RenderWindow window(sf::VideoMode(oGame.x, oGame.y), "MORPION");
-
+    
     int click = 0;
     while (window.isOpen())
     {
@@ -69,7 +69,19 @@ DWORD WINAPI ThreadFunction2(LPVOID lpParam)
             {
                 window.close();
             }
+            
+            if (event.type == sf::Event::MouseButtonPressed)
+            {
+                if (event.mouseButton.button == sf::Mouse::Left)
+                {
+                    sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
+                    //Communiquer entre thread pour donner la position à l'autre thread
+                }
+            }
         }
+
+        oGame.drawWindow(window);
+        window.display();
     }
 
     return 0;

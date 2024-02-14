@@ -58,3 +58,25 @@ int GameInstance::getPlayerTurn()
 {
     return playerTurn;
 }
+
+
+//--------------------------WINDOW-------------------------
+
+
+
+void GameInstance::drawWindow(sf::RenderWindow& window)
+{
+    sf::RectangleShape verticalLines(sf::Vector2f(3.f , window.getSize().y));
+    verticalLines.setFillColor(sf::Color::Red);
+    verticalLines.setPosition((window.getSize().x/3)-1.5f, 0.f);
+    window.draw(verticalLines);
+    verticalLines.setPosition((window.getSize().x*2 / 3) - 1.5f, 0.f);
+    window.draw(verticalLines);
+
+    sf::RectangleShape honrizontalLines(sf::Vector2f(window.getSize().x, 3.f));
+    honrizontalLines.setFillColor(sf::Color::Red);
+    honrizontalLines.setPosition(0.f,(window.getSize().y/3) - 1.5f);
+    window.draw(honrizontalLines);
+    honrizontalLines.setPosition(0.f, (window.getSize().y *2 / 3) - 1.5f);
+    window.draw(honrizontalLines);
+}

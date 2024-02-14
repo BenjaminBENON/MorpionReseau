@@ -139,10 +139,12 @@
     <ClCompile Include="client.cpp" />
     <ClCompile Include="GameInstance.cpp" />
     <ClCompile Include="socket.cpp" />
+    <ClCompile Include="thread.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameInstance.h" />
     <ClInclude Include="socket.h" />
+    <ClInclude Include="thread.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

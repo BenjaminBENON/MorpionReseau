@@ -26,7 +26,7 @@ public:
 	~socketClient();
 
 	void createSocket();
-	void sendJson(rapidjson::Document document);
+	void sendJson(rapidjson::Document document); // voir pourquoi ca ne marche pas 
 
 	SOCKET clientSocket;
 

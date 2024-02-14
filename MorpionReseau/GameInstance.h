@@ -17,6 +17,8 @@ public:
 
     std::vector<std::vector<int>>& getBoard(); // Déclaration de la fonction getBoard
 
+    void drawWindow(sf::RenderWindow& window);
+
 private:
     int playerTurn;
     std::vector<std::vector<int>> board;

@@ -1,6 +1,9 @@
 #include "socket.h"
 
 
+#define IPADRESS "192.168.0.14" //j'ai changé ca
+
+
 socketClient::socketClient()
 {
     HWND hWnd = MakeWorkerWindow();
@@ -22,9 +25,11 @@ LRESULT CALLBACK socketClient::ClientWndProc(HWND hwnd, UINT uMsg, WPARAM wParam
     case WM_SOCKET:
         switch (WSAGETSELECTEVENT(lParam))
         {
-            /*case FD_CONNECT:
-                std::cout << "Connected to server\n";
-                break;*/
+        case FD_CONNECT:// J ai remis ca à voir si ca ne fait pas buguer
+        {
+            std::cout << "Connected to server\n";
+            break;
+        }
         case FD_READ:
         {
             char buffer[1024] = { 0 };
@@ -114,7 +119,7 @@ void socketClient::createSocket()
     // Server address
     struct sockaddr_in serverAddr;
     serverAddr.sin_family = AF_INET;
-    serverAddr.sin_addr.s_addr = inet_addr("10.1.144.31"); // Assuming server is running locally
+    serverAddr.sin_addr.s_addr = inet_addr(IPADRESS); // Assuming server is running locally
     serverAddr.sin_port = htons(PORT);
 
     // Connect to server
@@ -126,7 +131,7 @@ void socketClient::createSocket()
             closesocket(clientSocket);
             DestroyWindow(hWnd);
             WSACleanup();
-            //return 1;
+            return;
         }
     }
 
@@ -139,14 +144,14 @@ void socketClient::createSocket()
 }
 
 
-//void socketClient::sendJson(rapidjson::Document document)
-//{
-//    StringBuffer buffer;
-//    Writer<StringBuffer> writer(buffer);
-//    document.Accept(writer);
-//    std::string jsonString = buffer.GetString();
-//
-//
-//    // Send JSON string to server
-//    send(clientSocket, jsonString.c_str(), jsonString.length(), 0);
-//}
+void socketClient::sendJson(rapidjson::Document document)
+{
+    StringBuffer buffer;
+    Writer<StringBuffer> writer(buffer);
+    document.Accept(writer);
+    std::string jsonString = buffer.GetString();
+
+
+    // Send JSON string to server
+    send(clientSocket, jsonString.c_str(), jsonString.length(), 0);
+}
