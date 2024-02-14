@@ -4,6 +4,7 @@
 #define NOMINMAX
 
 #include <WinSock2.h>
+#include <ws2def.h>
 #include <Windows.h>
 #include <iostream>
 #include <cstring>

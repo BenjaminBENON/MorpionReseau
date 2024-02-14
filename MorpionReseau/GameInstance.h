@@ -6,6 +6,7 @@
 class GameInstance
 {
 public:
+
     GameInstance(int iLengthScreen, int iHeightScreen);
 
     int x;
@@ -20,6 +21,7 @@ public:
     void drawWindow(sf::RenderWindow& window);
 
 private:
+
     int playerTurn;
     std::vector<std::vector<int>> board;
 };

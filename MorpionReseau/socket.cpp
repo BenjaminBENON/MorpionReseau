@@ -1,7 +1,7 @@
 #include "socket.h"
 
 
-#define IPADRESS "192.168.0.14" //j'ai changé ca
+#define IPADRESS "10.1.144.42" 
 
 
 socketClient::socketClient()
@@ -138,9 +138,6 @@ void socketClient::createSocket()
     std::cout << "Connecting to server...\n";
 
     WSAAsyncSelect(clientSocket, hWnd, WM_SOCKET, FD_READ);
-    
-
- 
 }
 
 
