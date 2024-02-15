@@ -1,10 +1,10 @@
 #include "web_sThread.h"
 //#include "httplib.h"
 
-#include "GameInstance.cpp"
+//#include "GameInstance.cpp"
 
 //retourne l'état actuel du jeu en format JSON.
-extern std::string getGameStateAsJson();
+//extern std::string getGameStateAsJson();
 
 web_sThread::web_sThread()
 {
